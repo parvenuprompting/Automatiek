@@ -48,24 +48,27 @@ export function PlanEditor({ plan, onWijzig, onTerug }: Props) {
 
   return (
     <main>
-      <p>
-        <button onClick={onTerug}>← Terug naar overzicht</button>
-      </p>
+      <button className="terug-link" onClick={onTerug}>
+        ← Overzicht
+      </button>
 
-      <label>
-        Titel
-        <input
-          type="text"
-          value={plan.titel}
-          onChange={(e) => {
-            const kopie = structuredClone(plan)
-            kopie.titel = e.target.value
-            kopie.gewijzigd = new Date().toISOString()
-            onWijzig(kopie)
-          }}
-        />
-      </label>
-      <p className="hulptekst">{HELP.titel}</p>
+      <div className="kop-veld">
+        <label>
+          Titel
+          <input
+            type="text"
+            placeholder="Bijvoorbeeld: Ochtendbriefing van mijn inbox"
+            value={plan.titel}
+            onChange={(e) => {
+              const kopie = structuredClone(plan)
+              kopie.titel = e.target.value
+              kopie.gewijzigd = new Date().toISOString()
+              onWijzig(kopie)
+            }}
+          />
+        </label>
+        <p className="hulptekst">{HELP.titel}</p>
+      </div>
 
       <label>
         Status

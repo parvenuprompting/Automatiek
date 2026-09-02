@@ -1,9 +1,10 @@
 :root {
-  --bg: #fafaf8;
-  --fg: #1a1a18;
-  --muted: #6b6b66;
-  --border: #d8d8d2;
-  --card: #ffffff;
-  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-  --sans: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --paper: #faf9f6;
+  --paper-soft: #f2f1ec;
+  --ink: #16130f;
+  --ink-soft: #555555;
+  --ink-muted: #888888;
+  --line: rgba(0, 0, 0, 0.12);
+  --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }

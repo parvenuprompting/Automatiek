@@ -54,6 +54,6 @@ test('exportknoppen aanwezig', () => {
 test('terugknop roept onTerug aan', async () => {
   const { plan, onWijzig, onTerug } = setup()
   render(<PlanEditor plan={plan} onWijzig={onWijzig} onTerug={onTerug} />)
-  await userEvent.click(screen.getByRole('button', { name: /terug naar overzicht/i }))
+  await userEvent.click(screen.getByRole('button', { name: /overzicht/i }))
   expect(onTerug).toHaveBeenCalled()
 })

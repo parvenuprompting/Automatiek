@@ -52,11 +52,10 @@ export function StappenEditor({ stappen, onWijzig }: Props) {
             />
           </label>
           <p className="hulptekst">{HELP.stapFoutscenario}</p>
-          <button onClick={() => verwijderStap(i)}>Verwijder stap</button>
+          <button className="subtiel verwijder-stap" onClick={() => verwijderStap(i)}>Verwijder</button>
         </fieldset>
       ))}
-      <button
-        onClick={() =>
+      <button className="subtiel" onClick={() =>
           onWijzig([...stappen, { nummer: stappen.length + 1, omschrijving: '', invoer: '', uitvoer: '', foutscenario: '' }])
         }
       >
