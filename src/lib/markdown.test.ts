@@ -7,6 +7,9 @@ function planMetInhoud(): Plan {
   const plan = maakNieuwPlan('Ochtendbriefing')
   plan.blokken.doelEnTrigger = { doel: 'Dagelijkse samenvatting van mijn inbox', trigger: 'Elke werkdag om 08:00', triggerType: 'schema' }
   plan.blokken.bronnen = { diensten: 'Gmail', data: 'Ongelezen berichten', authenticatie: 'OAuth via omgevingsvariabele' }
+  plan.blokken.kwaliteit = { verificatie: 'Log toont berichtaantal', testaanpak: 'Droge run met testaccount' }
+  plan.blokken.uitvoering = { omgeving: 'Mac, launchd', planning: 'Werkdagen 08:00', faalafhandeling: 'Notificatie via Telegram' }
+  plan.blokken.randvoorwaarden = { privacy: 'Geen data naar derden', randgevallen: 'Geen nieuws: korte melding' }
   plan.blokken.stappen = [{
     nummer: 1,
     omschrijving: 'Haal ongelezen e-mail op',
