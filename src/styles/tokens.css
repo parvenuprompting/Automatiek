@@ -1,0 +1,9 @@
+:root {
+  --bg: #fafaf8;
+  --fg: #1a1a18;
+  --muted: #6b6b66;
+  --border: #d8d8d2;
+  --card: #ffffff;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --sans: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
