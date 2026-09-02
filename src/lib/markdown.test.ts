@@ -6,6 +6,7 @@ import type { Plan } from './types'
 function planMetInhoud(): Plan {
   const plan = maakNieuwPlan('Ochtendbriefing')
   plan.blokken.doelEnTrigger = { doel: 'Dagelijkse samenvatting van mijn inbox', trigger: 'Elke werkdag om 08:00', triggerType: 'schema' }
+  plan.blokken.bronnen = { diensten: 'Gmail', data: 'Ongelezen berichten', authenticatie: 'OAuth via omgevingsvariabele' }
   plan.blokken.stappen = [{
     nummer: 1,
     omschrijving: 'Haal ongelezen e-mail op',
