@@ -283,3 +283,41 @@ fieldset.stap .verwijder-stap {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* ---------- AI-idee-sectie ---------- */
+.idee-sectie {
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+}
+.idee-sectie .eyebrow { margin-bottom: 1rem; }
+.idee-sectie button { margin-top: 0.5rem; }
+
+/* ---------- Dialoog ---------- */
+.dialoog-achtergrond {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 19, 15, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10;
+}
+.dialoog {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  max-width: 26rem;
+  width: 100%;
+  padding: 2rem;
+}
+.dialoog h3 { margin: 0 0 1rem; font-size: 1.4rem; }
+.dialoog p { font-size: 0.85rem; color: var(--ink-soft); }
+.dialoog a { color: var(--ink); }
+.dialoog-acties { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.dialoog input[type='password'] {
+  background: var(--paper-soft);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}

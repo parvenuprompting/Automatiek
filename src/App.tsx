@@ -5,10 +5,13 @@ import { maakNieuwPlan } from './lib/plan'
 import { PlanOverzicht } from './components/PlanOverzicht'
 import { PlanEditor } from './components/PlanEditor'
 import { ImportKnop } from './components/ImportKnop'
+import { IdeeNaarPlan } from './components/IdeeNaarPlan'
+import { ApiSleutelDialoog } from './components/ApiSleutelDialoog'
 
 export default function App() {
   const [plannen, setPlannen] = useState<Plan[]>(() => laadPlannen())
   const [actiefId, setActiefId] = useState<string | null>(null)
+  const [sleutelDialoogOpen, setSleutelDialoogOpen] = useState(false)
 
   useEffect(() => {
     slaPlannenOp(plannen)
@@ -49,6 +52,11 @@ export default function App() {
     setPlannen((pl) => [toeTeVoegen, ...pl])
   }
 
+  function aiPlanGemaakt(plan: Plan) {
+    setPlannen((pl) => [plan, ...pl])
+    setActiefId(plan.id)
+  }
+
   if (actief) {
     return <PlanEditor plan={actief} onWijzig={wijzig} onTerug={() => setActiefId(null)} />
   }
@@ -67,9 +75,14 @@ export default function App() {
         onVerwijder={verwijder}
         onDupliceer={dupliceer}
       />
+      <IdeeNaarPlan onPlanGemaakt={aiPlanGemaakt} onVraagSleutel={() => setSleutelDialoogOpen(true)} />
       <p>
         <ImportKnop onImport={importeer} />
       </p>
+      <button className="subtiel" onClick={() => setSleutelDialoogOpen(true)}>
+        AI-sleutel instellen
+      </button>
+      <ApiSleutelDialoog open={sleutelDialoogOpen} onSluit={() => setSleutelDialoogOpen(false)} />
     </>
   )
 }
