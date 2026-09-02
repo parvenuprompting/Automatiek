@@ -4,6 +4,7 @@ import { laadPlannen, slaPlannenOp, opslagBeschikbaar } from './lib/opslag'
 import { maakNieuwPlan } from './lib/plan'
 import { PlanOverzicht } from './components/PlanOverzicht'
 import { PlanEditor } from './components/PlanEditor'
+import { ImportKnop } from './components/ImportKnop'
 
 export default function App() {
   const [plannen, setPlannen] = useState<Plan[]>(() => laadPlannen())
@@ -42,6 +43,12 @@ export default function App() {
     setPlannen((pl) => pl.map((p) => (p.id === bijgewerkt.id ? bijgewerkt : p)))
   }
 
+  function importeer(plan: Plan) {
+    const bestaatAl = plannen.some((p) => p.id === plan.id)
+    const toeTeVoegen: Plan = bestaatAl ? { ...plan, id: crypto.randomUUID() } : plan
+    setPlannen((pl) => [toeTeVoegen, ...pl])
+  }
+
   if (actief) {
     return <PlanEditor plan={actief} onWijzig={wijzig} onTerug={() => setActiefId(null)} />
   }
@@ -60,6 +67,9 @@ export default function App() {
         onVerwijder={verwijder}
         onDupliceer={dupliceer}
       />
+      <p>
+        <ImportKnop onImport={importeer} />
+      </p>
     </>
   )
 }
