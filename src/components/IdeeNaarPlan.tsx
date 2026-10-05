@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { genereerPlanMetAi, leesSleutel } from '../lib/ai'
+import { leesLeverancier, leesLokaalModel } from '../lib/model'
 import type { Plan } from '../lib/types'
 
 interface Props {
@@ -12,9 +13,11 @@ export function IdeeNaarPlan({ onPlanGemaakt, onVraagSleutel }: Props) {
   const [bezig, setBezig] = useState(false)
   const [fout, setFout] = useState<string | null>(null)
 
+  const lokaal = leesLeverancier() === 'lokaal'
+
   async function genereer() {
-    const sleutel = leesSleutel()
-    if (!sleutel) {
+    // Een sleutel is alleen nodig bij de cloudroute; lokaal draait zonder account.
+    if (!lokaal && !leesSleutel()) {
       onVraagSleutel()
       return
     }
@@ -43,8 +46,9 @@ export function IdeeNaarPlan({ onPlanGemaakt, onVraagSleutel }: Props) {
         />
       </label>
       <p className="hulptekst">
-        Je idee gaat naar OpenRouter (GLM 5.3) en komt terug als voorstel dat je daarna vrij kunt
-        bewerken. Alleen als jij een API-sleutel hebt ingesteld.
+        {lokaal
+          ? `Je idee gaat naar je eigen model (${leesLokaalModel()}) op deze Mac — niets verlaat het apparaat. Het voorstel kun je daarna vrij bewerken.`
+          : 'Je idee gaat naar OpenRouter (GLM 5.3) en komt terug als voorstel dat je daarna vrij kunt bewerken. Alleen als jij een API-sleutel hebt ingesteld.'}
       </p>
       <button className="primaire" disabled={bezig || idee.trim() === ''} onClick={() => void genereer()}>
         {bezig ? 'Plan wordt gemaakt…' : 'Genereer plan met AI'}

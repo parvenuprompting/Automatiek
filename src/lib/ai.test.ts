@@ -1,5 +1,12 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { genereerPlanMetAi, opslaanSleutel, leesSleutel } from './ai'
+import {
+  zetLeverancier,
+  zetLokaalModel,
+  LOKAAL_BASIS_STANDAARD,
+  LOKAAL_MODEL_STANDAARD,
+  LOKAAL_NUM_CTX,
+} from './model'
 
 const GELDIG_PLAN_JSON = {
   versie: 1,
@@ -28,16 +35,17 @@ function mockFetch(body: unknown, status = 200) {
   return fn
 }
 
-beforeEach(() => {
-  localStorage.clear()
-  opslaanSleutel('test-key')
-})
-
 afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('genereerPlanMetAi', () => {
+describe('genereerPlanMetAi — cloudroute (OpenRouter)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    opslaanSleutel('test-key')
+    zetLeverancier('openrouter')
+  })
+
   test('geldige response levert gevalideerd Plan', async () => {
     mockFetch({
       choices: [{ message: { content: '```json\n' + JSON.stringify(GELDIG_PLAN_JSON) + '\n```' } }],
@@ -77,7 +85,52 @@ describe('genereerPlanMetAi', () => {
   })
 })
 
+describe('genereerPlanMetAi — lokale route (standaard, geen sleutel nodig)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  test('standaard gaat het naar Ollama /api/chat, met num_ctx en zonder sleutel', async () => {
+    const fn = mockFetch({ message: { content: JSON.stringify(GELDIG_PLAN_JSON) } })
+    const plan = await genereerPlanMetAi('test idee')
+    const [url, opties] = fn.mock.calls[0]
+    expect(url).toBe(`${LOKAAL_BASIS_STANDAARD}/api/chat`)
+    expect(opties.headers.Authorization).toBeUndefined()
+    const body = JSON.parse(opties.body)
+    expect(body.model).toBe(LOKAAL_MODEL_STANDAARD)
+    expect(body.stream).toBe(false)
+    expect(body.options.num_ctx).toBe(LOKAAL_NUM_CTX)
+    expect(plan.titel).toBe('Ochtendbriefing')
+  })
+
+  test('onbereikbare server geeft een Nederlandse melding over Ollama', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('ECONNREFUSED')))
+    await expect(genereerPlanMetAi('test')).rejects.toThrow(/Geen verbinding met het lokale model/)
+  })
+
+  test('onbekend model noemt de modelnaam en de controle via ollama list', async () => {
+    mockFetch({ error: 'model not found' }, 404)
+    await expect(genereerPlanMetAi('test')).rejects.toThrow(/ollama list/)
+  })
+
+  test('een zelfgekozen lokaal model wordt gebruikt', async () => {
+    zetLokaalModel('qwen2.5-coder:7b')
+    const fn = mockFetch({ message: { content: JSON.stringify(GELDIG_PLAN_JSON) } })
+    await genereerPlanMetAi('test')
+    expect(JSON.parse(fn.mock.calls[0][1].body).model).toBe('qwen2.5-coder:7b')
+  })
+
+  test('leeg antwoord van het lokale model geeft foutmelding', async () => {
+    mockFetch({ message: { content: '' } })
+    await expect(genereerPlanMetAi('test')).rejects.toThrow(/leeg antwoord/i)
+  })
+})
+
 describe('sleutelbeheer', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   test('opslaan en lezen', () => {
     opslaanSleutel('abc123')
     expect(leesSleutel()).toBe('abc123')

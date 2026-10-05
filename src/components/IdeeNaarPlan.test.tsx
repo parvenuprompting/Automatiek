@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { IdeeNaarPlan } from './IdeeNaarPlan'
 import { leesSleutel, opslaanSleutel } from '../lib/ai'
+import { zetLeverancier } from '../lib/model'
 import { maakNieuwPlan } from '../lib/plan'
 
 beforeEach(() => {
@@ -9,12 +10,41 @@ beforeEach(() => {
   vi.stubGlobal('crypto', { ...crypto, randomUUID: () => 'uuid-123' })
 })
 
-test('zonder API-sleutel opent de dialoog bij klik', async () => {
+test('cloudroute zonder API-sleutel: de dialoog opent bij klik', async () => {
+  zetLeverancier('openrouter')
   const onVraagSleutel = vi.fn()
   render(<IdeeNaarPlan onPlanGemaakt={() => {}} onVraagSleutel={onVraagSleutel} />)
   await userEvent.type(screen.getByLabelText(/omschrijf je automation-idee/i), 'test idee')
   await userEvent.click(screen.getByRole('button', { name: /genereer plan met ai/i }))
   expect(onVraagSleutel).toHaveBeenCalled()
+})
+
+test('lokale route heeft géén sleutel nodig', async () => {
+  const plan = maakNieuwPlan('Lokaal gegenereerd')
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: { content: JSON.stringify(plan) } }),
+    }),
+  )
+  const onVraagSleutel = vi.fn()
+  const onPlanGemaakt = vi.fn()
+  render(<IdeeNaarPlan onPlanGemaakt={onPlanGemaakt} onVraagSleutel={onVraagSleutel} />)
+  await userEvent.type(screen.getByLabelText(/omschrijf je automation-idee/i), 'test idee')
+  await userEvent.click(screen.getByRole('button', { name: /genereer plan met ai/i }))
+  await waitFor(() =>
+    expect(onPlanGemaakt).toHaveBeenCalledWith(expect.objectContaining({ titel: 'Lokaal gegenereerd' })),
+  )
+  expect(onVraagSleutel).not.toHaveBeenCalled()
+})
+
+test('lokale route zonder server toont een Nederlandse foutmelding', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('ECONNREFUSED')))
+  render(<IdeeNaarPlan onPlanGemaakt={() => {}} onVraagSleutel={() => {}} />)
+  await userEvent.type(screen.getByLabelText(/omschrijf je automation-idee/i), 'test idee')
+  await userEvent.click(screen.getByRole('button', { name: /genereer plan met ai/i }))
+  expect(await screen.findByText(/Geen verbinding met het lokale model/)).toBeInTheDocument()
 })
 
 test('leeg idee: knop uitgeschakeld', () => {
@@ -24,6 +54,7 @@ test('leeg idee: knop uitgeschakeld', () => {
 
 test('fout van de AI netjes getoond', async () => {
   opslaanSleutel('test')
+  zetLeverancier('openrouter')
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({ ok: false, status: 402, json: async () => ({}) }),
@@ -35,8 +66,9 @@ test('fout van de AI netjes getoond', async () => {
   expect(melding).toBeInTheDocument()
 })
 
-test('geslaagde generatie roept onPlanGemaakt aan en maakt veld leeg', async () => {
+test('geslaagde cloudgeneratie roept onPlanGemaakt aan en laat de sleutel staan', async () => {
   opslaanSleutel('test')
+  zetLeverancier('openrouter')
   const plan = maakNieuwPlan('Gegenereerd')
   vi.stubGlobal(
     'fetch',
